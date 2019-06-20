@@ -14,12 +14,12 @@ A primeira linha da saı́da contém a quantidade de vértices do conjunto S que
 
 ### Como compilar
 Usar o comando:
-'''
+```
 make
-'''
+```
 
 ### Como rodar
 Para uma definição do grafo no arquivo "entrada.in", e para que o resultado do corte mínimo seja escrito em "saida.out", o programa deve ser rodado como:
-'''
+```
 ./bin/tp2 < entrada.in > saida.out
-'''
+```
