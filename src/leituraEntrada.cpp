@@ -10,7 +10,7 @@ void leEntrada(Grafo &grafo){
     std::cin >> vertices;
     std::cin >> arestas;
 
-    grafo.iniciaGrafo(vertices, arestas);
+    grafo.iniciaGrafo(vertices);
 
     //lê as arestas e seus custos
     int orig, dest, custo;
