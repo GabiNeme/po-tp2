@@ -29,15 +29,15 @@ void Grafo::adicionaAresta(int origem, int dest, int custo){
 void Grafo::imprimeListaAdjacencia(){
     int v = this->num_vertices;
 
-    for (int i = 0; i < v; i++) { 
+    for (int i = 0; i < v; i++) {
          std::cout << i << ' ';
         for (auto x : adj_list[i]) {
-            
-            std::cout << x.vertice << "(" << x.ocupacao << ") ";
+
+            std::cout << x.vertice << "(" << x.ocupacao << "/" << x.custo << ") ";
         }
         std::cout <<  std::endl;
-    } 
-    
+    }
+
 }
 
 
@@ -47,14 +47,14 @@ void Grafo::imprimeMatrizAdjacencia(){
     int matriz[v][v];
 
     //preenche com zeros
-    for (int i = 0; i < v; i++) { 
+    for (int i = 0; i < v; i++) {
         for (int j = 0; j<v; j++) {
             matriz[i][j] = 0;
         }
-    } 
+    }
 
     //transcreve a lista de adjacência para a matriz de adjacência
-    for (int i = 0; i < v; i++) { 
+    for (int i = 0; i < v; i++) {
         for (auto x : adj_list[i]) {
             matriz[i][x.vertice] = x.custo;
             matriz[x.vertice][i] = x.custo;
@@ -62,76 +62,77 @@ void Grafo::imprimeMatrizAdjacencia(){
     }
 
     //imprime matriz de adjacência
-    for (int i = 0; i < v; i++) { 
+    for (int i = 0; i < v; i++) {
         for (int j = 0; j<v; j++) {
-            
+
             std::cout << matriz[i][j] << " ";
         }
         std::cout <<  std::endl;
-    } 
+    }
 }
 
 
-// Procura um caminho viável entre 's' e 't' 
-int Grafo::procuraCaminho(int s, int t, bool visitado[], int caminho[]){ 
+// Procura um caminho viável entre 's' e 't'
+int Grafo::procuraCaminho(int s, int t, bool visitado[], int caminho[]){
 
     int i_caminho = 0;
 
     int lim = __INT_MAX__;
-  
+
     // Chamada recursiva para procurar os caminhos
     return verificaViabilidadeCaminho(s, t, lim, visitado, caminho, i_caminho);
 
-    //std::cout << "Inicio procura caminho:" << std::endl;
-} 
-  
+    std::cout << "Inicio procura caminho:" << std::endl;
+}
+
 // Função recursiva que procura, no grafo, qualquer caminho com capacidade
 // disponível entre o e d
-int Grafo::verificaViabilidadeCaminho(int o, int d, int &lim, bool visitado[], int caminho[], int &i_caminho){ 
+int Grafo::verificaViabilidadeCaminho(int o, int d, int &lim, bool visitado[], int caminho[], int &i_caminho){
     // Se chegou no vértice, ele pode pertencer ao caminho
 
-    //std::cout << "Adiciona vertice " << o << std::endl;
-    visitado[o] = true; 
-    caminho[i_caminho] = o; 
-    i_caminho++; 
-    
+    std::cout << "Adiciona vertice " << o << std::endl;
+    visitado[o] = true;
+    caminho[i_caminho] = o;
+    i_caminho++;
+
     int result = 0;
 
-    // Se encontrou o destino, retorna 1 
-    if (o == d){ 
-        //std::cout << "Encontrou vertice final " << o << std::endl;
+    // Se encontrou o destino, retorna 1
+    if (o == d){
+        std::cout << "Encontrou vertice final " << o << std::endl;
         return 1;
-          
-    }else{ //se não é o vértice de destino 
-     
+
+    }else{ //se não é o vértice de destino
+
         // Verifica a viabilidade de todos os vértices adjacentes ao atual
         for (auto x: adj_list[o]){
+
             if (!visitado[x.vertice]){
 
- 
+
                 if(x.ocupacao < x.custo){ //da pra passar por esse vértice
 
-                    //std::cout << "Foi do vertice " << o << " para o " << x.vertice << std::endl;
-                    result =  verificaViabilidadeCaminho(x.vertice, d, lim, visitado, caminho, i_caminho); 
+                    std::cout << "Foi do vertice " << o << " para o " << x.vertice << std::endl;
+                    result =  verificaViabilidadeCaminho(x.vertice, d, lim, visitado, caminho, i_caminho);
                     if (result == 1) break;
                 }
-    
+
             }
         }
 
         //verificou todos os possíveis nós a partir do atual
         //Se for 0, não encontrou nenhum, tira esse nó do caminho
         //Se for 1, encontrou algum
-        if (result == 0){  
+        if (result == 0){
 
-            //std::cout << "Dead end para o vertice " << o << std::endl;
-            caminho[i_caminho] = -1; 
+            std::cout << "Dead end para o vertice " << o << std::endl;
+            caminho[i_caminho] = -1;
             i_caminho --;
         }
 
         return result;
-    } 
-       
+    }
+
 }
 
 
@@ -163,20 +164,20 @@ int Grafo::obtemLimiteFluxo(int caminho[]){
 void Grafo::aumentaFluxo(int aumento, int caminho[]){
     int v = num_vertices;
     int i = 1;
-    
+
     //para cada vértice do caminho
     while(i < v && caminho[i] != -1){
 
         //procura o vertice atual na lista de adjacência do vértice anterior
         for (auto it = adj_list[caminho[i-1]].rbegin(); it != adj_list[caminho[i-1]].rend(); it++){
-            if(it->vertice == caminho[i]){ 
+            if(it->vertice == caminho[i]){
                 it->ocupacao += aumento;
                 break;
             }
         }
         //procura o vertice anterior na lista de adjacência do vértice atual
         for (auto it = adj_list[caminho[i]].rbegin(); it != adj_list[caminho[i]].rend(); it++){
-            if(it->vertice == caminho[i-1]){ 
+            if(it->vertice == caminho[i-1]){
                 it->ocupacao += aumento;
                 break;
             }
@@ -203,25 +204,32 @@ int Grafo::obtemValorCorte(bool alcancaveis[]){
 
 int Grafo::FordFulkerson(int s, int t, bool corteMinimo[]){
     int v = num_vertices;
-    bool visitado[v]; 
+    bool visitado[v];
     int caminho[v];
 
 
     //enquanto existe trajeto disponível no grafo de s a t
     while(true){
         for (int i = 0; i < v; i++){ //zera métricas
-            visitado[i] = false; 
+            visitado[i] = false;
             caminho[i] = -1;
         }
 
         int existeCaminho = this->procuraCaminho(s,t,visitado, caminho);
         if(!existeCaminho){
+            std::cout << "sem mais caminhos " <<  std::endl;
             break;
         }
+        this->imprimeListaAdjacencia();
+
+        for(int i = 0; i < v; i++){
+            std::cout << caminho[i] << " ";
+        }
+        std::cout << std::endl;
 
         int aumento = this->obtemLimiteFluxo(caminho);
 
-        //std::cout << "aumento no fluxo por " << aumento << std::endl;
+        std::cout << "aumento no fluxo por " << aumento << std::endl;
         this->aumentaFluxo(aumento, caminho);
 
     }
@@ -243,30 +251,36 @@ void Grafo::zeraOcupacoes(){
 
 
 void Grafo::obtemCorteMinimo(){
+
     int v = num_vertices;
     bool verticesCorteMinimo[v], verticesCorteAtual[v];
     int corteMinimo = __INT_MAX__;
-    int corteAtual;
+    int corteAtual = __INT_MAX__;
 
-    //para cada vértice que pode ser uma origem
-    for(int s = 0; s < v; s++){
-        //para cada vértice que pode ser um destino
-        for(int t = s+1; t < v ; t++){
-            //std::cout << "----- Novo FF " << s << " e " << t << std::endl;
+    int s = 1;
+    //para cada vértice que pode ser um destino
+
+        for(int t = 6; t < 7 ; t++){
+            std::cout << "----- Novo FF " << s << " e " << t << std::endl;
             this->zeraOcupacoes();
-            corteAtual = this->FordFulkerson(s, t, verticesCorteAtual);
+            if(t != s)
+                corteAtual = this->FordFulkerson(s, t, verticesCorteAtual);
+
+                std::cout << "Corte encontrado: " << corteAtual << std::endl;
             if (corteAtual < corteMinimo){ //encontrou corte menor
                 corteMinimo = corteAtual;
                 for(int i = 0; i < v; i++){
                     verticesCorteMinimo[i] = verticesCorteAtual[i];
                 }
+
+                std::cout << "É menor" << std::endl;
+                imprimeDadosCorteMinimo(corteMinimo,verticesCorteMinimo);
             }
         }
-    }
+
 
 
     imprimeDadosCorteMinimo(corteMinimo, verticesCorteMinimo);
-
 }
 
 
@@ -284,7 +298,7 @@ void Grafo::imprimeDadosCorteMinimo(int corte, bool verticesCorteMinimo[]){
         if(verticesCorteMinimo[i]){
             std::cout << i << " ";
         }
-    } 
+    }
     std::cout << std::endl;
 
     //imprime valor do corte mínimo

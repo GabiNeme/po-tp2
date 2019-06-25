@@ -36,6 +36,7 @@ public:
     int FordFulkerson(int s, int t, bool corteMinimo[]);
 
     void obtemCorteMinimo();
+    void obtemCorteMinimoVertices(int listaVertices[], int tamList,int &corteMinimo, bool verticesCorteMinimo[]);
     void imprimeDadosCorteMinimo(int corte, bool verticesCorteMinimo[]);
 
 };
