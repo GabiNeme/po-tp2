@@ -5,13 +5,14 @@
 #include <vector>
 #include <list>
 #include <set>
-#include "VerticeAdjacente.h"
 
 class Grafo{
 private:
     int num_vertices;
-    std::vector<std::list<V_Adj>> adj_list;
+    int ** matriz_custos;
+    int ** matriz_fluxos;
 
+    void zeraMatrizFluxos();
 
     int procuraCaminho(int s, int t, bool visitado[], int caminho[]);
     int verificaViabilidadeCaminho(int o, int d, int &lim, bool visitado[], int caminho[], int &i_caminho);
@@ -21,18 +22,17 @@ private:
 
     int obtemValorCorte(bool alcancaveis[]);
 
-    void zeraOcupacoes();
-
     void imprimeDadosCorteMinimo(int corte, bool verticesCorteMinimo[]);
 
 public:
     Grafo();
     Grafo(int num_vertices);
+    ~Grafo();
 
     int get_num_vertices();
     void iniciaGrafo(int num_vertices);
     void adicionaAresta(int origem, int dest, int custo);
-    void imprimeListaAdjacencia();
+    void imprimeMatrizAdjacencia();
 
     int FordFulkerson(int s, int t, bool corteMinimo[]);
     void obtemCorteMinimo();

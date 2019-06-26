@@ -2,11 +2,26 @@
 
 Grafo::Grafo(){
     this->num_vertices = 0;
+    this->matriz_custos = nullptr;
+    this->matriz_fluxos = nullptr;
 }
 
 
 Grafo::Grafo(int num_vertices){
     this->iniciaGrafo(num_vertices);
+}
+
+
+Grafo::~Grafo(){
+    int v = this->num_vertices;
+
+    for (int i = 0; i < v; ++i)
+        delete [] matriz_custos[i];
+    delete [] matriz_custos;
+
+    for (int i = 0; i < v; ++i)
+        delete [] matriz_fluxos[i];
+    delete [] matriz_fluxos;
 }
 
 int Grafo::get_num_vertices(){
@@ -15,24 +30,45 @@ int Grafo::get_num_vertices(){
 
 void Grafo::iniciaGrafo(int num_vertices){
     this->num_vertices = num_vertices;
-    adj_list.resize(num_vertices);
+
+    this->matriz_custos = new int*[num_vertices];
+    for (int i = 0; i < num_vertices; ++i)
+        matriz_custos[i] = new int[num_vertices]; 
+
+    this->matriz_fluxos = new int*[num_vertices];
+    for (int i = 0; i < num_vertices; ++i)
+        matriz_fluxos[i] = new int[num_vertices];
+    
+    for(int i = 0; i < this->num_vertices; i++){
+        for(int j = 0; j < this->num_vertices; j++){
+            matriz_custos[i][j] = 0;
+        }
+    }
+
+    this->zeraMatrizFluxos();
+}
+
+void Grafo::zeraMatrizFluxos(){
+    for(int i = 0; i < this->num_vertices; i++){
+        for(int j = 0; j < this->num_vertices; j++){
+            matriz_fluxos[i][j] = 0;
+        }
+    }
 }
 
 
 void Grafo::adicionaAresta(int origem, int dest, int custo){
-    V_Adj ori_dest(dest, custo);
-    V_Adj dest_ori(origem, custo);
-    adj_list[origem].push_back(ori_dest);
-    adj_list[dest].push_back(dest_ori);
+    matriz_custos[origem][dest] = custo;
+    matriz_custos[dest][origem] = custo;
 }
 
-void Grafo::imprimeListaAdjacencia(){
+void Grafo::imprimeMatrizAdjacencia(){
     int v = this->num_vertices;
 
     for (int i = 0; i < v; i++) {
          std::cout << i << ' ';
-        for (auto x : adj_list[i]) {
-            std::cout << x.vertice << "(" << x.ocupacao << "/" << x.custo << ") ";
+        for (int j = 0; j < this->num_vertices; j++) {
+            std::cout << "(" << matriz_fluxos[i][j] << "/" << matriz_custos[i][j] << ")\t";
         }
         std::cout <<  std::endl;
     }
@@ -66,11 +102,10 @@ int Grafo::verificaViabilidadeCaminho(int o, int d, int &lim, bool visitado[], i
     }else{ //se não é o vértice de destino
 
         // Verifica a viabilidade de todos os vértices adjacentes ao atual
-        for (auto x: adj_list[o]){
-
-            if (!visitado[x.vertice]){ //se não foi visitado
-                if(x.ocupacao < x.custo){ //da pra passar por esse vértice
-                    result =  verificaViabilidadeCaminho(x.vertice, d, lim, visitado, caminho, i_caminho);
+        for (int x = 0; x < this->num_vertices; x++){
+            if (!visitado[x]){ //se não foi visitado
+                if(matriz_fluxos[o][x] < matriz_custos[o][x]){ //da pra passar por esse vértice
+                    result =  verificaViabilidadeCaminho(x, d, lim, visitado, caminho, i_caminho);
                     if (result == 1) break;
                 }
 
@@ -99,21 +134,20 @@ int Grafo::obtemLimiteFluxo(int caminho[]){
 
     //para cada vértice do caminho
     while(i < v && caminho[i] != -1){
+        int ant = caminho[i-1];
+        int atual = caminho[i];
 
-        for (auto x: adj_list[caminho[i-1]]){
-            if(x.vertice == caminho[i]){ //encontrou o vertice atual na lista de adjacência do vértice anterior
-                if (x.custo - x.ocupacao < lim){
-                    lim = x.custo - x.ocupacao; //limite é a diferença entre custo e ocupação
-                }
-            }
+        if (matriz_custos[ant][atual] - matriz_fluxos[ant][atual] < lim){
+            lim = matriz_custos[ant][atual] - matriz_fluxos[ant][atual]; //limite é a diferença entre custo e fluxo
         }
+
         i++;
     }
     return lim;
 }
 
 
-// Percorre o caminho encontrado e aumenta o valor das ocupações
+// Percorre o caminho encontrado e aumenta o valor dos fluxos
 void Grafo::aumentaFluxo(int aumento, int caminho[]){
     int v = num_vertices;
     int i = 1;
@@ -122,21 +156,12 @@ void Grafo::aumentaFluxo(int aumento, int caminho[]){
     //para cada vértice do caminho
     while(i < v && caminho[i] != -1){
 
-        //procura o vertice atual na lista de adjacência do vértice anterior
-        for (auto it = adj_list[caminho[i-1]].rbegin(); it != adj_list[caminho[i-1]].rend(); it++){
-            if(it->vertice == caminho[i]){
-                it->ocupacao += aumento;
-                valor = it->ocupacao;
-                break;
-            }
-        }
-        //procura o vertice anterior na lista de adjacência do vértice atual
-        for (auto it = adj_list[caminho[i]].rbegin(); it != adj_list[caminho[i]].rend(); it++){
-            if(it->vertice == caminho[i-1]){
-                it->ocupacao = -valor;
-                break;
-            }
-        }
+        int ant = caminho[i-1];
+        int atual = caminho[i];
+
+        matriz_fluxos[ant][atual] += aumento;
+        valor = matriz_fluxos[ant][atual];
+        matriz_fluxos[atual][ant] = -valor;        
 
         i++;
     }
@@ -148,9 +173,9 @@ int Grafo::obtemValorCorte(bool alcancaveis[]){
 
     for(int i = 0; i < num_vertices; i++){
         if(alcancaveis[i]){ //para os vértices alcançáveis
-            for (auto x: adj_list[i]){ //percorre a lista de adjacência desse vértice
-                if (!alcancaveis[x.vertice])
-                    corte += abs(x.custo); //soma o custo ao total
+            for (int x = 0; x < this->num_vertices; x++){ //para todos os vértices que pode estar conectado
+                if (!alcancaveis[x])
+                    corte += abs(matriz_custos[i][x]); //soma o custo ao total
             }
         }
     }
@@ -162,7 +187,7 @@ int Grafo::FordFulkerson(int s, int t, bool corteMinimo[]){
     bool visitado[v];
     int caminho[v];
 
-    this->zeraOcupacoes();
+    this->zeraMatrizFluxos();
 
     //enquanto existe trajeto disponível no grafo de s a t
     while(true){
@@ -188,18 +213,9 @@ int Grafo::FordFulkerson(int s, int t, bool corteMinimo[]){
 }
 
 
-void Grafo::zeraOcupacoes(){
-    for(int i = 0; i < num_vertices; i++){
-        for (auto it = adj_list[i].rbegin(); it != adj_list[i].rend(); it++){
-            it->ocupacao = 0;
-        }
-    }
-}
-
-
 void Grafo::obtemCorteMinimo(){
-
-    int v = num_vertices;
+    
+    int v = num_vertices;    
     bool verticesCorteMinimo[v], verticesCorteAtual[v];
     int corteMinimo = __INT_MAX__;
     int corteAtual = __INT_MAX__;
@@ -209,7 +225,7 @@ void Grafo::obtemCorteMinimo(){
     //para cada vértice que pode ser um destino
     for(int t = 1; t < v ; t++){
 
-        corteAtual = this->FordFulkerson(s, t, verticesCorteAtual);
+            corteAtual = this->FordFulkerson(s, t, verticesCorteAtual);
 
         if (corteAtual < corteMinimo){ //encontrou corte menor
             corteMinimo = corteAtual;
@@ -218,8 +234,9 @@ void Grafo::obtemCorteMinimo(){
             }
         }
     }
-
+        
     imprimeDadosCorteMinimo(corteMinimo, verticesCorteMinimo);
+    
 }
 
 
