@@ -1,7 +1,7 @@
 # Trabalho prático 2 de Pesquisa Operacional
 ## Gabriela Peres Neme - 2018054745
 
-O objetivo do presente programa é retornar o corte mínimo em um grafo dirigido conexo ponderado.
+O objetivo do presente programa é retornar o corte mínimo em um grafo não dirigido conexo ponderado.
 
 ### Dados de entrada
 Descrição do grafo, feita pela entrada padrão (standard input).
