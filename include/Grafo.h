@@ -12,16 +12,6 @@ private:
     int num_vertices;
     std::vector<std::list<V_Adj>> adj_list;
 
-public:
-    Grafo();
-    Grafo(int num_vertices);
-
-    int get_num_vertices();
-
-    void iniciaGrafo(int num_vertices);
-    void adicionaAresta(int origem, int dest, int custo);
-    void imprimeListaAdjacencia();
-    void imprimeMatrizAdjacencia();
 
     int procuraCaminho(int s, int t, bool visitado[], int caminho[]);
     int verificaViabilidadeCaminho(int o, int d, int &lim, bool visitado[], int caminho[], int &i_caminho);
@@ -33,11 +23,19 @@ public:
 
     void zeraOcupacoes();
 
-    int FordFulkerson(int s, int t, bool corteMinimo[]);
-
-    void obtemCorteMinimo();
-    void obtemCorteMinimoVertices(int listaVertices[], int tamList,int &corteMinimo, bool verticesCorteMinimo[]);
     void imprimeDadosCorteMinimo(int corte, bool verticesCorteMinimo[]);
+
+public:
+    Grafo();
+    Grafo(int num_vertices);
+
+    int get_num_vertices();
+    void iniciaGrafo(int num_vertices);
+    void adicionaAresta(int origem, int dest, int custo);
+    void imprimeListaAdjacencia();
+
+    int FordFulkerson(int s, int t, bool corteMinimo[]);
+    void obtemCorteMinimo();
 
 };
 
