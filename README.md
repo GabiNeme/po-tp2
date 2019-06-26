@@ -15,7 +15,7 @@ A primeira linha da saı́da contém a quantidade de vértices do conjunto S que
 ### Como compilar
 Usar o comando:
 ```
-compilar.sh
+./compilar.sh
 ```
 ou
 ```
@@ -25,5 +25,9 @@ make
 ### Como rodar
 Para uma definição do grafo no arquivo "entrada.in", e para que o resultado do corte mínimo seja escrito em "saida.out", o programa deve ser rodado como:
 ```
-executar.sh entrada.in saida.out
+./executar.sh entrada.in saida.out
+```
+ou
+```
+./bin/tp2 < entrada.in > saida.out
 ```
